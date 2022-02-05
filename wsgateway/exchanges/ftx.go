@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/AlnsV/go-crypto-ws-gateway/wsgateway/internal"
 	"github.com/sirupsen/logrus"
-	"go-crypto-ws-gateway/wsgateway/internal"
 	"net/http"
 	"time"
 )
@@ -65,6 +65,7 @@ func (f FTXWSClient) Connect() error {
 	}
 	return nil
 }
+
 func (f FTXWSClient) subscribe(pairs []string) error {
 	var err error
 	for _, pair := range pairs {
