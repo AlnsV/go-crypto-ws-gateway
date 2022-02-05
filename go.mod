@@ -1,4 +1,4 @@
-module go-crypto-ws-gateway
+module wsgateway
 
 go 1.17
 
