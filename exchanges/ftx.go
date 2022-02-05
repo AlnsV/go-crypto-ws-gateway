@@ -97,6 +97,7 @@ func (f FTXWSClient) Listen(instruments []string, receiver func(map[string]inter
 			select {
 			case msg := <-messageContainer:
 				f.logger.Infoln(msg)
+				// TODO(JV): Unify msg format
 				receiver(msg)
 			}
 		}
