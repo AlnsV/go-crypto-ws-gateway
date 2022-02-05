@@ -1,7 +1,8 @@
 package wsgateway
 
 import (
-	"wsgateaway/exchanges"
+	"fmt"
+	"go-crypto-ws-gateway/wsgateway/exchanges"
 )
 
 type ExchangeWSClient interface {
@@ -14,5 +15,5 @@ func BuildWSClient(exchange, APIKey, APISecret string) (ExchangeWSClient, error)
 	if exchange == "FTX" {
 		return exchanges.NewFTXWSClient(APIKey, APISecret), nil
 	}
-	return nil, nil
+	return nil, fmt.Errorf("exchange: %s doesn't exists")
 }

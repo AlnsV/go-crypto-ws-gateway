@@ -6,9 +6,9 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"go-crypto-ws-gateway/wsgateway/internal"
 	"net/http"
 	"time"
-	"wsgateaway/internal"
 )
 
 const address = "wss://ftx.com/ws/"
