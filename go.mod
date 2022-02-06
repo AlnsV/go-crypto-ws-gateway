@@ -1,4 +1,4 @@
-module github.com/AlnsV/go-crypto-ws-gateway
+module github.com/AlnsV/go-crypto-ws-gateway/
 
 go 1.17
 
