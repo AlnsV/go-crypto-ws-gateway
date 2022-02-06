@@ -2,7 +2,7 @@ package wsgateway
 
 import (
 	"fmt"
-	"go-crypto-ws-gateway/wsgateway/exchanges"
+	"github.com/AlnsV/go-crypto-ws-gateway/wsgateway/exchanges"
 )
 
 type ExchangeWSClient interface {
