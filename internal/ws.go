@@ -2,8 +2,8 @@ package internal
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
+	logger "github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"net/url"
@@ -65,9 +65,13 @@ func (ws *WebsocketClient) Listen(messageBuffer chan<- map[string]interface{}) {
 		var msg map[string]interface{}
 		err = json.Unmarshal(message, &msg)
 		if err != nil {
-			log.Fatal(fmt.Errorf("parsing failure in: %s, err: %s", message, err))
+			logger.Warningf("parsing failure in: %s, err: %s", message, err)
 		} else {
 			messageBuffer <- msg
 		}
 	}
+}
+
+func (ws *WebsocketClient) Close() {
+	ws.Close()
 }

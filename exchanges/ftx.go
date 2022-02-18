@@ -5,21 +5,26 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/AlnsV/go-crypto-ws-gateway/wsgateway/internal"
-	"github.com/sirupsen/logrus"
+	"github.com/AlnsV/go-crypto-ws-gateway/internal"
+	"github.com/AlnsV/go-crypto-ws-gateway/pkg/model"
+	"github.com/AlnsV/go-crypto-ws-gateway/pkg/parse"
+	logger "github.com/sirupsen/logrus"
 	"net/http"
 	"time"
 )
 
 const address = "wss://ftx.com/ws/"
 
+var (
+	timezone, _ = time.LoadLocation("UTC")
+)
+
 type FTXWSClient struct {
-	APIKey    string
+	APIKey string
+
 	APISecret string
 
 	ws *internal.WebsocketClient
-
-	logger *logrus.Logger
 }
 
 func NewFTXWSClient(APIKey string, APISecret string) *FTXWSClient {
@@ -27,7 +32,6 @@ func NewFTXWSClient(APIKey string, APISecret string) *FTXWSClient {
 		APIKey:    APIKey,
 		APISecret: APISecret,
 		ws:        internal.NewWebsocketClient(address, true),
-		logger:    logrus.New(),
 	}
 }
 
@@ -43,7 +47,7 @@ func (f FTXWSClient) Connect() error {
 	if err != nil {
 		return err
 	}
-	f.logger.Infoln(response)
+	logger.Infoln(response)
 
 	ts := time.Now().Second()
 	loginMsg := map[string]interface{}{
@@ -57,7 +61,7 @@ func (f FTXWSClient) Connect() error {
 		},
 	}
 
-	f.logger.Infoln(loginMsg)
+	logger.Infoln(loginMsg)
 
 	err = f.ws.SendMessageJSON(loginMsg)
 	if err != nil {
@@ -75,7 +79,7 @@ func (f FTXWSClient) subscribe(pairs []string) error {
 			"market":  pair,
 		}
 
-		f.logger.Infoln(loginMsg)
+		logger.Infoln(loginMsg)
 
 		err = f.ws.SendMessageJSON(loginMsg)
 		if err != nil {
@@ -85,7 +89,7 @@ func (f FTXWSClient) subscribe(pairs []string) error {
 	return err
 }
 
-func (f FTXWSClient) Listen(instruments []string, receiver func(map[string]interface{})) error {
+func (f FTXWSClient) Listen(instruments []string, receiver func(trade *model.Trade)) error {
 	err := f.subscribe(instruments)
 	if err != nil {
 		return err
@@ -97,9 +101,23 @@ func (f FTXWSClient) Listen(instruments []string, receiver func(map[string]inter
 		for {
 			select {
 			case msg := <-messageContainer:
-				f.logger.Infoln(msg)
-				// TODO(JV): Unify msg format
-				receiver(msg)
+				logger.Infoln(msg)
+
+				if trades, ok := msg["data"]; ok {
+					for _, rawTrade := range trades.([]interface{}) {
+						trade := rawTrade.(map[string]interface{})
+						timestamp, _ := parse.ParseTimestamp(trade["time"].(string), timezone)
+
+						newTrade := &model.Trade{
+							Price:     trade["price"].(float64),
+							Side:      trade["side"].(string),
+							Size:      trade["size"].(float64),
+							Timestamp: timestamp,
+							Market:    msg["market"].(string),
+						}
+						receiver(newTrade)
+					}
+				}
 			}
 		}
 	}()
@@ -108,6 +126,5 @@ func (f FTXWSClient) Listen(instruments []string, receiver func(map[string]inter
 }
 
 func (f FTXWSClient) Close() {
-	//TODO implement me
-	panic("implement me")
+	f.ws.Close()
 }
