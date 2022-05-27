@@ -42,15 +42,12 @@ func TestGateway(t *testing.T) {
 	}
 
 	err = client.Listen(
-		[]string{"BTC-PERP", "SOL-PERP"},
-		func(trade *model.Trade) {
-			logger.Infoln(trade)
-		},
+		[]string{"RUNE-PERP"},
+		func(trade *model.Trade) {},
 	)
 	if err != nil {
 		logger.Error(err)
 	}
 
 	time.Sleep(2 * time.Second)
-	client.Close()
 }
