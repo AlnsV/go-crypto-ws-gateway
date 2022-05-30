@@ -65,7 +65,7 @@ func (ws *WebsocketClient) Listen(messageBuffer chan<- map[string]interface{}) {
 		var msg map[string]interface{}
 		err = json.Unmarshal(message, &msg)
 		if err != nil {
-			logger.Warningf("parsing failure in: %s, err: %s", message, err)
+			logger.Warningf("parsing jfailure in: %s, err: %s", message, err)
 		} else {
 			messageBuffer <- msg
 		}
